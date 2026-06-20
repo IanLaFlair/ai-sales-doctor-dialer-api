@@ -1,7 +1,7 @@
 # Sales Dialer — Backend (Node.js / Express)
 
 A **2-line predictive dialer** + a **mock CRM** with **idempotent** activity writes.
-No database — all state is in memory. Code lives in [`server/`](./server).
+No database — all state is in memory.
 
 > This is the backend half of the Advanced exercise. The React frontend is a
 > separate project (`dialer-web`).
@@ -17,21 +17,21 @@ once per call event (idempotent).
 
 The two graded pieces:
 
-- **Dialer concurrency** ([`server/src/dialer.js`](./server/src/dialer.js)) —
+- **Dialer concurrency** ([`src/dialer.js`](./src/dialer.js)) —
   concurrency fixed at 2, worked in rounds. The first line to `CONNECTED` in a
   round is the **winner**; every other live line is force-ended
   `CANCELED_BY_DIALER` (one agent can't talk to two people). Exactly one winner
   per round.
-- **CRM sync + idempotency** ([`server/src/crm.js`](./server/src/crm.js)) —
+- **CRM sync + idempotency** ([`src/crm.js`](./src/crm.js)) —
   `syncCallToCrm(call)` checks an idempotency ledger (`Map<callId, activityId>`)
   **before** touching the CRM, so a re-delivered event never duplicates an
   activity.
 
 ### Two separate in-memory stores (by design)
 
-- **App DB** (`server/src/store.js`) — leads, calls, sessions, our own
+- **App DB** (`src/store.js`) — leads, calls, sessions, our own
   `CRMActivity` copies, and the idempotency ledger.
-- **Mock CRM** (`server/src/crm.js`) — contacts + activities; pretend it's an
+- **Mock CRM** (`src/crm.js`) — contacts + activities; pretend it's an
   external Salesforce/HubSpot. Reached only through `createOrUpdateContact()` /
   `createActivity()` — the same functions the `POST /mock-crm/*` routes call, so
   the internal sync genuinely behaves like "calling an external CRM."
@@ -41,7 +41,6 @@ The two graded pieces:
 ## Run locally
 
 ```bash
-cd server
 npm install
 npm run dev        # http://localhost:4000  (node --watch)
 # or: npm start
@@ -50,7 +49,6 @@ npm run dev        # http://localhost:4000  (node --watch)
 Acceptance / integration tests (spawns the server, drives it over HTTP):
 
 ```bash
-cd server
 npm test
 ```
 
@@ -114,7 +112,7 @@ via the existing Caddy. Subdomain `dialer-api.<DOMAIN>` → this backend
 
 ```bash
 sudo apt update && sudo apt install -y nodejs npm
-git clone <repo> ~/app/sales-dialer-be && cd ~/app/sales-dialer-be/server && npm install
+git clone <repo> ~/app/sales-dialer-be && cd ~/app/sales-dialer-be && npm install
 
 # pm2, bound to localhost only (Caddy reaches it); env inline:
 HOST=127.0.0.1 PORT=4000 ALLOWED_ORIGINS=https://dialer.<DOMAIN> \
